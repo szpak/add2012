@@ -41,12 +41,18 @@ class DashboardPage extends Page {
     }
 
     def learntSkills = {
-        return  learntSkill*.text();
+        return learntSkill*.text();
     }
 
     def learntSkillsPoints = {
 
         return $("div", class:"points")*.text();
+    }
+
+    def clickShowMoreEntries = {
+        def showMoreLink = $("a", class: "link-text")
+        assert showMoreLink.text() == "Show more"
+        showMoreLink.click()
     }
 
     def encouragementIsPresent = {

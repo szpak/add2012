@@ -1,9 +1,6 @@
 package add.haslearntit.steps
 
-import add.haslearntit.domain.EntryDomain
-import add.haslearntit.domain.entry.EntryRepository
-import add.haslearntit.hooks.Context
-import add.haslearntit.pages.*
+import cucumber.table.DataTable
 
 this.metaClass.mixin(cucumber.runtime.groovy.Hooks)
 this.metaClass.mixin(cucumber.runtime.groovy.EN)
@@ -13,4 +10,9 @@ this.metaClass.mixin(cucumber.runtime.groovy.EN)
         assert entriesCount() == 0
         
     }
-    
+
+Given(~'^there are following entries$') { DataTable entries ->
+    entries.asMaps().each { entry ->
+        createEntry(entry["entry"], "easy", "1")
+    }
+}

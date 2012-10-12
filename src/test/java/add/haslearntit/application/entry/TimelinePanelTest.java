@@ -1,15 +1,16 @@
 package add.haslearntit.application.entry;
 
 import static java.util.Arrays.asList;
+import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.util.ListModel;
 import org.junit.Test;
 
 import add.haslearntit.HasLearntItBaseWicketIT;
-import add.haslearntit.application.entry.TimelineModel;
-import add.haslearntit.application.entry.TimelinePanel;
 import add.haslearntit.domain.entry.Entry;
 
 public class TimelinePanelTest extends HasLearntItBaseWicketIT {
@@ -25,6 +26,7 @@ public class TimelinePanelTest extends HasLearntItBaseWicketIT {
         tester.startComponentInPage(new TimelinePanel("learntSkillsList", modelContainingSkills(someEntry, otherEntry)));
 
         // then:
+        tester.assertListView("learntSkillsList:list", asList(someEntry, otherEntry));
         tester.assertContains(someEntry.asMessage());
         tester.assertContains(otherEntry.asMessage());
     }
@@ -63,6 +65,48 @@ public class TimelinePanelTest extends HasLearntItBaseWicketIT {
 
         // then
         tester.assertLabel("learntSkillsList:list:0:skillPoints", Integer.toString(someEntry.getEarnedPoints()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldLimitNumberOfDisplayedLearnedSkills() {
+        //given
+
+        List<Entry> entries = createGivenNumberOfEntries(TimelinePanel.DEFAULT_VIEW_SIZE + 1);
+
+        //when
+        tester.startComponentInPage(new TimelinePanel("learntSkillsList", new StaticTimelineModel(entries)));
+
+        //then
+        ListView<Entry> entryList = (ListView<Entry>) tester.getComponentFromLastRenderedPage("learntSkillsList:list");
+        tester.assertListView("learntSkillsList:list", entries);
+        //TODO: MZA: Can it be tested better? E.g. by a check which entries are visible?
+        assertThat(entryList.getViewSize()).isEqualTo(TimelinePanel.DEFAULT_VIEW_SIZE);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldShowAllLearnedSkillsOnRequest() {
+        //given
+        final int requestedNumerOfEntries = TimelinePanel.DEFAULT_VIEW_SIZE + 1;
+        List<Entry> entries = createGivenNumberOfEntries(requestedNumerOfEntries);
+        tester.startComponentInPage(new TimelinePanel("learntSkillsList", new StaticTimelineModel(entries)));
+        ListView<Entry> entryList = (ListView<Entry>) tester.getComponentFromLastRenderedPage("learntSkillsList:list");
+        assertThat(entryList.getViewSize()).isEqualTo(TimelinePanel.DEFAULT_VIEW_SIZE);
+
+        //when
+        tester.clickLink("learntSkillsList:showMore");
+
+        //then
+        assertThat(entryList.getViewSize()).isEqualTo(requestedNumerOfEntries);
+    }
+
+    private List<Entry> createGivenNumberOfEntries(int numberOfEntries) {
+        List<Entry> entries = new ArrayList<Entry>(numberOfEntries);
+        for (int i = 0; i < numberOfEntries; i++) {
+            entries.add(aEntry("Entry " + i));
+        }
+        return entries;
     }
 
     // --

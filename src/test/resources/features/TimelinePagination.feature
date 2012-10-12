@@ -1,6 +1,5 @@
 Feature: Timelines should show limited number of entries
 
-    @pending
     Scenario: Limit displayed entries to 5
         Given there are following entries
             | entry     |
@@ -19,7 +18,6 @@ Feature: Timelines should show limited number of entries
             | Wicket    |
             | TDD       |
 
-    @pending
     Scenario: Extend timeline if user request more results
         Given there are following entries
             | entry     |
